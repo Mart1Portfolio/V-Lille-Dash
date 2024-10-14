@@ -1,0 +1,190 @@
+#%%
+# Chargement des librairies
+import plotly.express as px 
+import pandas as pd
+import datetime as dt
+import dash 
+from dash import dcc, html, dash_table
+import dash_mantine_components as dmc
+import dash_bootstrap_components as dbc
+from dash_bootstrap_templates import load_figure_template
+from dash.dependencies import Output, Input, State
+
+import os 
+import plotly.io as pio
+import copy
+
+import requests
+import json
+import pandas as pd
+import geopandas as gpd
+import contextily as ctx
+import geoplot
+import matplotlib.pyplot as plt
+import folium
+import pandas as pd
+
+import plotly.express as px
+import geopandas as gpd
+import pandas as pd
+import matplotlib.pyplot as plt
+from geodatasets import get_path
+
+
+#Importation de la base 
+def call_data():
+    api_url = "https://data.lillemetropole.fr/data/ogcapi/collections/vlille_temps_reel/items?f=geojson&limit=-1"
+    api_call = requests.get(api_url)
+    api_data = api_call.text
+    api_data = json.loads(api_data)
+    df = [feature for feature in api_data['features']]
+    df = pd.json_normalize(df)
+    return df
+
+df = call_data()
+
+#Fonction pour créer la carte
+def create_map(df):
+    fig = px.scatter_mapbox(df,
+                        lat="properties.y",
+                        lon="properties.x", 
+                        hover_data = {"properties.nb_places_dispo" : True,
+                            "properties.nb_velos_dispo" : True},
+                        color="properties.nom",
+                        color_continuous_scale=px.colors.cyclical.IceFire,
+                        zoom=13, 
+                        width=1000, height=800)
+    fig.update_traces(marker=dict(size=15))
+    fig.update_layout(mapbox_style="open-street-map")
+    return fig
+
+#Fonction pour créer le tableau 
+def create_table(df):
+    columns = [{"name": i, "id": i} for i in df.columns]
+    data = df.to_dict('records')
+    table = dash_table.DataTable(
+        columns = columns,
+        data = data,
+        style_table={'height': '300px', 'overflowY': 'auto'}
+    )
+    return table    
+
+#%%
+#Frontend
+app = dash.Dash()
+
+app.layout = html.Div(
+        
+
+    className="clearfix",
+    children=[html.Title(
+        title="V'Lille en temps réel"),
+        # Bannière du dessus
+        html.Div(
+            className="upper-column",
+            children=[
+                html.Div(
+                    className="image-container",
+                    children=[
+                        html.Img(
+                            src="https://4.bp.blogspot.com/-eIx0Q3dB_C8/Tmm-4ZmEouI/AAAAAAAAEuA/BASGE7LdYVw/s1600/v-lille.png",
+                            alt="Image"
+                        )
+                    ]
+                ),
+                html.Div(
+                    className="title-container",
+                    children=[
+                        html.H1("Outil de visualisation des données V'Lille en temps réel"),
+                        html.Span(children=[
+                            f"Préparé par ", html.B("Martin Coulon, étudiant en master Société Numérique à Sciences Po Lille et Centrale Lille"),
+                            # html.Br(), "le ", dt.datetime.now().date()
+                        ])
+                    ]
+                ),
+            ]
+        ),
+                
+        # Contenu Principal
+        html.Div(
+            className="content",
+            children=[
+                html.Div(className= "Colonne_Haut", children = [
+                    html.Div(className= "Ville_Selector", children=[
+                        html.H2("Indiquez les quartiers que vous souhaitez analyser :"),
+                        dcc.Dropdown(
+                            id="Ville_Selector",
+                            options=[{"label": v, "value": v} for v in list(df['properties.commune'].unique())],
+                            value=["Lille"], multi=True, optionHeight=30
+                        ),
+                    ]),
+                    html.Div(className= "Arrêt_Selector", children=[
+                        html.H2("Sélectionner l'arrêt que vous cherchez :"),
+                        dcc.Dropdown(
+                            id="Arrêt_Selector",
+                            options=[{"label": v, "value": v} for v in list(df['properties.nom'].unique())],
+                            value=["BRULE MAISON"], multi=True, optionHeight=30
+                        )
+                    ]),
+                    
+                    html.Div(className="right-column", children=[
+                    html.Div([
+                        dcc.Checklist(
+                            id="show_table",
+                            options=[{'label': 'Afficher les tableaux', 'value': 'show'}],
+                            value=[] 
+                        )
+                        ])
+                    ]),
+                    html.Div(
+                        id='table_container',
+                        children=[]
+                    ),
+
+
+                    html.Div(className= "Map", children=[
+                        dcc.Graph(id="Map", figure=create_map(df))
+                    ]),
+                ])
+                ]
+                ),
+                dcc.Store(id = "store_ville_selected",
+                          storage_type= "memory"),
+            ]
+        ),
+#     ],
+
+# )
+#%%
+#______Mise à jour du dictionnaire pour ne contenir que les variables disponibles dans les expos sélectionnées_______#
+@app.callback(
+    [Output("store_ville_selected", "data"),
+    Output("Map", "figure")],
+    [Input("Ville_Selector", "value"),
+    Input("Arrêt_Selector", "value")])
+
+def update_df(ville_selected, arret_selected): 
+    print(ville_selected)
+    print(arret_selected)
+    df = call_data()
+    if len(ville_selected) == 0 : 
+        ville_selected = list(df['properties.commune'].unique())
+    else : 
+        df = df[df['properties.commune'].isin(ville_selected)]
+    
+    if len(arret_selected) == 0 :
+        arret_selected = list(df['properties.nom'].unique())
+    else :
+        df = df[df['properties.nom'].isin(arret_selected)]
+
+
+
+    fig = create_map(df)
+    return ville_selected, fig
+
+
+
+if __name__ == "__main__":
+    app.run_server(debug = True, port = 8152)
+
+# %%
