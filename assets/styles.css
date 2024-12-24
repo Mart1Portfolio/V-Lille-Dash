@@ -1,0 +1,140 @@
+/* General body and heading styles */
+body {
+    font-family: Arial, sans-serif;
+    font-size: small;
+    background-color: whitesmoke;
+}
+
+h1, h2 {
+    text-align: center;
+    font-size: 100%;
+    color: rgb(65, 64, 64);
+}
+
+/* Upper banner styles */
+.upper-column {
+    position: relative;
+    z-index: 1; /* Positionnement de l'élément */
+    background-color: rgb(128, 184, 120);
+    padding: 0.5%; 
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    width: 99%;
+    height: 50%; 
+}
+
+.upper-column .title-container {
+    flex: 1; /* Permet d'ajuster le positionnement de l'image */
+}
+
+.upper-column .title-container h1 {
+    margin: 0;
+    font-size: 50px; 
+}
+
+.upper-column .image-container {
+    width: 10%; 
+}
+
+.upper-column .image-container img {
+    width: 100%;
+    height: auto;
+}
+
+.Expos_Selector {
+    display: flex;
+    justify-content: space-between;
+    align-items: center; 
+    width: 100%;  
+    padding: 1%;  }
+    
+#Expos_Selector {
+width: 75%;
+max-height: 200px;
+margin-right: 1%;
+}
+
+.Observation_Selector {
+    display: flex;
+    justify-content: space-between;
+    align-items: center; 
+    width: 80%;  
+    margin-left: 1% }
+
+/* #tab-effectif-pourcent {
+    width: 500%;
+    max-height: 200px;
+    margin-right: 1%;
+    } */
+/* Alignement entre la colonne de gauche et de droite */
+.left-column {
+    width: 30%;
+    float: left;
+    padding: 10px;
+}
+
+.right-column {
+    width: 65%;
+    float: left;
+    padding: 10px;
+}
+
+.clearfix::after {
+    content: "";
+    clear: both;
+    display: table;
+}
+
+/* Uniform size for selection elements */
+#Modalites_Var, #Selection_Filtre, #Modalites_Var_Fil {
+    width: 100%;
+    height: 100%; 
+    margin-bottom: 5%; 
+}
+#Expos_Selector {
+    font-size: 100%; 
+}
+#tab-effectif-pourcent, #group-or-stack {
+    margin: auto;
+    width: 100%;
+}
+
+/* Show table button */
+#show_table {
+    display: block;
+    margin: auto;
+}
+
+/* Table container */
+#table_container #Ensemble_N{
+    display: flex;
+    margin-top: 20px;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+
+}
+
+/* Increase graph height */
+#Graph {
+    width: 100%;
+    height: 500px; /* Adjust height as needed */
+}
+
+/* Inline block */
+.inline-block {
+    display: inline-block;
+}
+
+/* changes the text color of input box */
+.Select-value-label {
+    color: rgb(65, 64, 64) !important;
+}
+
+#Arrêt_Selector .Select__control {
+    background-color: black !important;
+    color: white !important;
+}
+

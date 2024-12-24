@@ -53,7 +53,8 @@ def create_map(df):
                         color="properties.nom",
                         color_continuous_scale=px.colors.cyclical.IceFire,
                         zoom=13, 
-                        width=1000, height=800)
+                        height=800,
+                        )
     fig.update_traces(marker=dict(size=15))
     fig.update_layout(mapbox_style="open-street-map")
     return fig
@@ -115,7 +116,8 @@ app.layout = html.Div(
                         dcc.Dropdown(
                             id="Ville_Selector",
                             options=[{"label": v, "value": v} for v in list(df['properties.commune'].unique())],
-                            value=["Lille"], multi=True, optionHeight=30
+                            value=["Lille"], multi=True, optionHeight=30,
+                            style={'backgroundColor': 'white', 'color': 'black'}
                         ),
                     ]),
                     html.Div(className= "Arrêt_Selector", children=[
@@ -123,7 +125,8 @@ app.layout = html.Div(
                         dcc.Dropdown(
                             id="Arrêt_Selector",
                             options=[{"label": v, "value": v} for v in list(df['properties.nom'].unique())],
-                            value=["BRULE MAISON"], multi=True, optionHeight=30
+                            value=["BRULE MAISON"], multi=True, optionHeight=30,
+                            style={'backgroundColor': 'white', 'color': 'black'}
                         )
                     ]),
                     
