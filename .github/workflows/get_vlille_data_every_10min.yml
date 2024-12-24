@@ -31,7 +31,7 @@ jobs:
           git config --global user.name "github-actions"
           git config --global user.email "github-actions@users.noreply.github.com"
           
-          git add data/vlille_data_*.csv
+          git add vlille_data_*.csv
           
           git commit -m "Ajout de nouveaux fichiers CSV"
 
