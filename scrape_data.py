@@ -13,4 +13,5 @@ def call_data():
     return df
 df = call_data()
 date=datetime.now().strftime('%d_%m_%Y_%H_%M')
-df.to_csv(f'vlille_data_{date}.csv', index=False)
+
+df.to_csv(f'data/vlille_data_{date}.csv', index=False)
