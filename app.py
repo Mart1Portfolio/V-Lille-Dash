@@ -16,36 +16,25 @@ import copy
 
 import requests
 import json
-import pandas as pd
 import geopandas as gpd
-import contextily as ctx
-import geoplot
 import matplotlib.pyplot as plt
-import folium
-import pandas as pd
-
-import plotly.express as px
-import geopandas as gpd
-import pandas as pd
-import matplotlib.pyplot as plt
-from geodatasets import get_path
-
 
 #Importation de la base 
 def call_data():
-    api_url = "https://data.lillemetropole.fr/data/ogcapi/collections/vlille_temps_reel/items?f=geojson&limit=-1"
+    api_url = "https://data.lillemetropole.fr/data/ogcapi/collections/ilevia:vlille_temps_reel/items?f=geojson&limit=-1"
     api_call = requests.get(api_url)
     api_data = api_call.text
     api_data = json.loads(api_data)
     df = [feature for feature in api_data['features']]
     df = pd.json_normalize(df)
+    df['properties.commune'] = df['properties.commune'].apply(lambda x: x.upper())
     return df
 
 df = call_data()
 
 #Fonction pour créer la carte
 def create_map(df):
-    fig = px.scatter_mapbox(df,
+    fig = px.scatter_map(df,
                         lat="properties.y",
                         lon="properties.x", 
                         hover_data = {"properties.nb_places_dispo" : True,
@@ -162,6 +151,7 @@ app.layout = html.Div(
 #______Mise à jour du dictionnaire pour ne contenir que les variables disponibles dans les expos sélectionnées_______#
 @app.callback(
     [Output("store_ville_selected", "data"),
+    Output("Arrêt_Selector", "options"),
     Output("Map", "figure")],
     [Input("Ville_Selector", "value"),
     Input("Arrêt_Selector", "value")])
@@ -170,11 +160,15 @@ def update_df(ville_selected, arret_selected):
     print(ville_selected)
     print(arret_selected)
     df = call_data()
+    available_arrêt = [{"label": v, "value": v} for v in list(df['properties.nom'].unique())]
     if len(ville_selected) == 0 : 
         ville_selected = list(df['properties.commune'].unique())
+        available_arrêt = [{"label": v, "value": v} for v in list(df['properties.nom'].unique())]
+
     else : 
         df = df[df['properties.commune'].isin(ville_selected)]
-    
+        available_arrêt = [{"label": v, "value": v} for v in list(df['properties.nom'].unique())]
+
     if len(arret_selected) == 0 :
         arret_selected = list(df['properties.nom'].unique())
     else :
@@ -183,7 +177,7 @@ def update_df(ville_selected, arret_selected):
 
 
     fig = create_map(df)
-    return ville_selected, fig
+    return ville_selected, available_arrêt, fig
 
 
 
