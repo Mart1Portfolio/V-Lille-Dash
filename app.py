@@ -9,11 +9,10 @@ import dash_mantine_components as dmc
 import dash_bootstrap_components as dbc
 from dash_bootstrap_templates import load_figure_template
 from dash.dependencies import Output, Input, State
-
 import os 
 import plotly.io as pio
 import copy
-
+from adress_to_coordinates import geopy_script
 import requests
 import json
 import geopandas as gpd
@@ -47,6 +46,29 @@ def create_map(df):
     fig.update_traces(marker=dict(size=15))
     fig.update_layout(mapbox_style="open-street-map")
     return fig
+
+def call_address_to_coordinates(address):
+    coordinates = geopy_script.address_to_coordinates(address)
+    return coordinates
+
+def call_coordinates_to_address(coordinates):
+    address = geopy_script.coordinates_to_address(coordinates)
+    return address
+
+def call_calculate_distance(coordinates1, coordinates2):
+    distance = geopy_script.calculate_distance(coordinates1, coordinates2)
+    return distance
+
+def update_address_to_coordinates(address):
+    coordinates = call_address_to_coordinates(address)
+    return coordinates
+
+def get_closest_station(coordinates):
+    df = call_data()
+    df['distance'] = df.apply(lambda x: call_calculate_distance(coordinates, (x['properties.y'], x['properties.x'])), axis = 1)
+    closest_station = df[df['distance'] == df['distance'].min()]
+    closest_station = closest_station['properties.nom'].values[0]
+    return closest_station
 
 #Fonction pour créer le tableau 
 def create_table(df):
@@ -100,6 +122,17 @@ app.layout = html.Div(
             className="content",
             children=[
                 html.Div(className= "Colonne_Haut", children = [
+                    html.Div(className= "Adress_Selector", children=[
+                        html.H2("Indiquez l'adresse que vous cherchez :"),
+                        dcc.Input(
+                            id="Adresse",
+                            type="text",
+                            placeholder="Entrez une adresse",
+                            value="13 Rue Auguste Angellier, 59000 Lille",
+                            debounce=True,
+                            style={'backgroundColor': 'white', 'color': 'black'}
+                        )
+                    ]),
                     html.Div(className= "Ville_Selector", children=[
                         html.H2("Indiquez les quartiers que vous souhaitez analyser :"),
                         dcc.Dropdown(
@@ -127,6 +160,10 @@ app.layout = html.Div(
                             value=[] 
                         )
                         ])
+                    ]),
+                    html.Div(className="Arrêt_Next_to_Address", children=[
+                        html.H2("Arrêt le plus proche de l'adresse :"),
+                        html.Div(id="Arrêt_Next_to_Address")  # This will display the result
                     ]),
                     html.Div(
                         id='table_container',
@@ -179,9 +216,16 @@ def update_df(ville_selected, arret_selected):
     fig = create_map(df)
     return ville_selected, available_arrêt, fig
 
+@app.callback(
+    [Output("Arrêt_Next_to_Address", "children")],
+    [Input("Adresse", "value")])
 
+def Arrêt_Next_to_Address(address):
+    coordinates = call_address_to_coordinates(address)
+    closest_station = get_closest_station(coordinates)
+    return [closest_station]
 
 if __name__ == "__main__":
-    app.run_server(debug = True, port = 8152)
+    app.run(debug = True, port = 8152)
 
 # %%
