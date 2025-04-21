@@ -24,7 +24,7 @@ def call_data():
 df = call_data()
 
 # Fonction pour créer la carte
-def create_map(df):
+def create_map(df, show_legend=False):
     fig = px.scatter_map(
         df,
         lat="properties.y",
@@ -34,10 +34,22 @@ def create_map(df):
         color="properties.nom",
         color_continuous_scale=px.colors.cyclical.IceFire,
         zoom=13, 
-        height=800,
+        height=600,
     )
     fig.update_traces(marker=dict(size=15))
     fig.update_layout(mapbox_style="open-street-map")
+    # Basic layout improvements (for all devices)
+    fig.update_layout(
+        margin={"r": 0, "t": 0, "l": 0, "b": 0},  # Remove margins
+        autosize=True,                            # Allow autosize
+        height=600,                              # Set reasonable height
+        showlegend=show_legend,                  # Set based on parameter
+        legend=dict(
+            itemsizing='constant',  # Keep icon sizes consistent
+            font=dict(size=12)      # Reasonable font size for legend
+        )
+    )
+    
     return fig
 
 def call_address_to_coordinates(address):
@@ -59,8 +71,12 @@ def get_closest_station(coordinates):
     return closest_station.iloc[0]
 
 # Initialisation de l'application
-app = dash.Dash(__name__)
-
+app = dash.Dash(
+    __name__,
+    meta_tags=[
+        {"name": "viewport", "content": "width=device-width, initial-scale=1.0"}
+    ]
+)
 app.layout = html.Div(
     className="app-container",
     children=[
@@ -220,7 +236,16 @@ app.layout = html.Div(
         ),
         
         # Stockage des données
-        dcc.Store(id="store_ville_selected", storage_type="memory")
+        dcc.Store(id="store_ville_selected", storage_type="memory"),
+        dcc.Interval(
+        id='interval-component',
+        interval=10000,  # in milliseconds - update every 10 second
+        n_intervals=0
+        ),
+        html.Div([
+        dcc.Store(id='screen-size', storage_type='memory'),
+        html.Div(id='screen-size-container')
+    ]),
     ]
 )
 
@@ -256,6 +281,20 @@ def update_arret_arrivee(address):
     except:
         return "Adresse non trouvée"
 
+# Clientside callback to get screen dimensions
+app.clientside_callback(
+    """
+    function(n_intervals) {
+        return {
+            width: window.innerWidth,
+            height: window.innerHeight,
+            isPortrait: window.innerHeight > window.innerWidth
+        }
+    }
+    """,
+    Output('screen-size', 'data'),
+    [Input('interval-component', 'n_intervals')]
+)
 # Callback pour filtrer les arrêts et mettre à jour la carte
 @app.callback(
     [Output("store_ville_selected", "data"),
@@ -266,9 +305,10 @@ def update_arret_arrivee(address):
      Input("Arret_Selector", "value"),
      Input("Show_Available", "value"),
      Input("Show_Nearby", "value"),
-     Input("Adresse_Depart", "value")]
+     Input("Adresse_Depart", "value"),
+     Input("screen-size", "data")]  
 )
-def update_data(ville_selected, arret_selected, show_available, show_nearby, address_depart):
+def update_data(ville_selected, arret_selected, show_available, show_nearby, address_depart, screen_size):
     df = call_data()
 
     if ville_selected:
@@ -281,18 +321,28 @@ def update_data(ville_selected, arret_selected, show_available, show_nearby, add
         coordinates = call_address_to_coordinates(address_depart)
         df['distance'] = df.apply(lambda x: call_calculate_distance(coordinates, (x['properties.y'], x['properties.x'])), axis=1)
         df = df[df['distance'] <= 250]
-
+    
     available_arrets = [{"label": v, "value": v} for v in df['properties.nom'].unique()]
 
     if arret_selected:
         df = df[df['properties.nom'].isin(arret_selected)]
-
-    result_station = [
-        html.Div(f"Pour l'arrêt {row['properties.nom']}, il y a {row['properties.nb_places_dispo']} places disponibles et {row['properties.nb_velos_dispo']} vélos disponibles")
-        for _, row in df.iterrows()
-    ]
-
-    fig = create_map(df)
+        result_station = [
+            html.Div(f"Pour l'arrêt {row['properties.nom']}, il y a {row['properties.nb_places_dispo']} places disponibles et {row['properties.nb_velos_dispo']} vélos disponibles")
+            for _, row in df.iterrows()
+        ]
+    else:
+        result_station = [html.Div("Aucun arrêt sélectionné")]
+    # Determine if legend should be visible based on screen size
+    show_legend = False
+    print(f"triger numéro {dt.datetime.now().strftime('%d/%m/%Y à %H:%M à %S')} : ",screen_size)
+    if screen_size and 'width' in screen_size and 'isPortrait' in screen_size:
+        width = screen_size['width']
+        is_portrait = screen_size['isPortrait']
+        # Show legend on portrait mobile devices
+        if width > 600:
+            show_legend = True
+    
+    fig = create_map(df, show_legend=show_legend)
 
     return ville_selected, available_arrets, result_station, fig
 
