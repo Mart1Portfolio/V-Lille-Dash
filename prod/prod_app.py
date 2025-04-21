@@ -296,6 +296,7 @@ def update_data(ville_selected, arret_selected, show_available, show_nearby, add
 
     return ville_selected, available_arrets, result_station, fig
 
+server = app.server
 if __name__ == "__main__":
     app.run(debug=True, port=8152)
 # %%
