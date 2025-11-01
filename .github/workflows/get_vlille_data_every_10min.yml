@@ -33,6 +33,7 @@ jobs:
 
       - name: Install Scraper Dependencies
         run: |
+          pip install uv  # Installer uv via pip
           cd scrape_data  # 1. On se déplace dans le dossier du scraper
           uv sync         # 2. On installe ses dépendances (via uv.lock)
       - name: Run Python script
