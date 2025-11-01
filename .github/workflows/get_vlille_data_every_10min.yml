@@ -31,13 +31,13 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y gdal-bin libgdal-dev
 
-      - name: Install python dependencies
+      - name: Install Scraper Dependencies
         run: |
-          pip install -r requirements.txt
-
+          cd scrape_data  # 1. On se déplace dans le dossier du scraper
+          uv sync         # 2. On installe ses dépendances (via uv.lock)
       - name: Run Python script
         run: |
-          python scrape_data.py  # Execute the script 
+          python scraper.py  # Execute the script
 
       - name: Commit CSV to repository
         run: |
