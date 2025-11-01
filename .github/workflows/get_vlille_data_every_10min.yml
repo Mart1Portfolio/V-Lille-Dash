@@ -18,19 +18,6 @@ jobs:
         with:
           python-version: '3.13'
 
-      - name: Cache APT packages (GDAL)
-        uses: actions/cache@v4
-        with:
-          path: /var/cache/apt/archives
-          key: ${{ runner.os }}-apt-gdal-cache-v1 # Clé de cache
-          restore-keys: |
-            ${{ runner.os }}-apt-gdal-cache-v1
-      
-      - name: Install GDAL system dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y gdal-bin libgdal-dev
-
       - name: Install Scraper Dependencies
         run: |
           pip install uv  # Installer uv via pip
