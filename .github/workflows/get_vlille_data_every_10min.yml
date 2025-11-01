@@ -11,17 +11,27 @@ jobs:
 
     steps:
       - name: Checkout the repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+
+      - name: Cache APT packages (GDAL)
+        uses: actions/cache@v4
+        with:
+          path: /var/cache/apt/archives
+          key: ${{ runner.os }}-apt-gdal-cache-v1 # Clé de cache
+          restore-keys: |
+            ${{ runner.os }}-apt-gdal-cache-v1
+      
       - name: Install GDAL system dependencies
         run: |
           sudo apt-get update
           sudo apt-get install -y gdal-bin libgdal-dev
-      - name: Set up Python
-        uses: actions/setup-python@v2
-        with:
-          python-version: '3.x'
 
-      - name: Install dependencies
+      - name: Install python dependencies
         run: |
           pip install -r requirements.txt
 
