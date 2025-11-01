@@ -13,7 +13,7 @@ jobs:
       - name: Checkout the repository
         uses: actions/checkout@v4
         with : 
-          depth: 1 #Permet d'éviter de récupérer tout l'historique 
+          fetch-depth: 1 #Permet d'éviter de récupérer tout l'historique 
 
       - name: Set up Python
         uses: actions/setup-python@v5
