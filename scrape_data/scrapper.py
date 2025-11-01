@@ -14,8 +14,12 @@ def call_data():
     return df
 
 if __name__ == "__main__":
-    df = call_data()
-    date=datetime.now().strftime('%d_%m_%Y_%H_%M')
-    if not os.path.exists('data'):
-        os.makedirs('data')
-    df.to_csv(f'data/vlille_data_{date}.csv', index=False)
+    try :
+        df = call_data()
+        date=datetime.now().strftime('%d_%m_%Y_%H_%M')
+        if not os.path.exists('data'):
+            os.makedirs('data')
+        df.to_csv(f'data/vlille_data_{date}.csv', index=False)
+        print(f"Data successfully saved to data/vlille_data_{date}.csv")
+    except Exception as e:
+        print(f"An error occurred: {e}")
