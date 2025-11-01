@@ -12,7 +12,8 @@ jobs:
     steps:
       - name: Checkout the repository
         uses: actions/checkout@v4
-        depth: 1 #Permet d'éviter de récupérer tout l'historique 
+        with : 
+          depth: 1 #Permet d'éviter de récupérer tout l'historique 
 
       - name: Set up Python
         uses: actions/setup-python@v5
