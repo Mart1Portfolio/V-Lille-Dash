@@ -25,6 +25,7 @@ jobs:
           uv sync         # 2. On installe ses dépendances (via uv.lock)
       - name: Run Python script
         run: |
+          cd scrape_data  # Se déplacer dans le dossier du scraper
           python scraper.py  # Execute the script
 
       - name: Commit CSV to repository
