@@ -1,9 +1,9 @@
-name: Get VLille info every 10min by excecuting a Python Script and saving CSV
+name: Get VLille info every 10min by executing a Python Script and saving CSV
 
 on:
   schedule:
     - cron: '*/10 * * * *'  # Every 10 min
-  workflow_dispatch:  
+  workflow_dispatch:
 
 jobs:
   run-script:
@@ -12,33 +12,31 @@ jobs:
     steps:
       - name: Checkout the repository
         uses: actions/checkout@v4
-        with : 
-          fetch-depth: 1 #Permet d'éviter de récupérer tout l'historique 
 
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.13'
-      - name: Configure GCP credentials
+
+      - name: Set up GCP credentials
         run: |
-          # 1. Prend le Secret GitHub et le décode dans un fichier
-          echo "${{ secrets.DASH_VLILLE_BQ_PUSHER }}" > gcp_key.json
-          
-          # 2. Définit une variable d'environnement pour que pandas-gbq
-          # trouve et utilise automatiquement ce fichier.
-          echo "GOOGLE_APPLICATION_CREDENTIALS=$GITHUB_WORKSPACE/gcp_key.json" >> $GITHUB_ENV
+          echo "${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}" > $HOME/gcp-key.json
+        env:
+          GOOGLE_APPLICATION_CREDENTIALS: $HOME/gcp-key.json
+
       - name: Install Scraper Dependencies
         run: |
-          pip install uv  # Installer uv via pip
-          cd scrape_data  # 1. On se déplace dans le dossier du scraper
-          uv sync         # 2. On installe ses dépendances (via uv.lock)
-      - name: Run Python script with uv
-        run: |
+          pip install uv  # Installer uv
           cd scrape_data  # Se déplacer dans le dossier du scraper
-          uv run scrapper.py  # Execute the script
+          uv sync         # Installer les dépendances
 
+      - name: Run Python script with uv
         env:
+          GOOGLE_APPLICATION_CREDENTIALS: $HOME/gcp-key.json
           GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
           BIGQUERY_DATASET_ID: ${{ secrets.BIGQUERY_DATASET_ID }}
           BIGQUERY_TABLE_ID: ${{ secrets.BIGQUERY_TABLE_ID }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          cd scrape_data
+          uv run scrapper.py

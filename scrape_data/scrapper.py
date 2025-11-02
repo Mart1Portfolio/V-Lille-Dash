@@ -4,6 +4,11 @@ import pandas as pd
 from pandas_gbq import to_gbq
 import os
 from datetime import datetime
+from google.oauth2 import service_account
+
+credentials = service_account.Credentials.from_service_account_file(
+    os.environ["GOOGLE_APPLICATION_CREDENTIALS"]
+)
 
 PROJECT_ID = os.environ.get("GCP_PROJECT_ID")
 DATASET_ID = os.environ.get("BIGQUERY_DATASET_ID")
@@ -45,5 +50,6 @@ if __name__ == "__main__":
         df,
         TABLE_FULL_ID,
         project_id=PROJECT_ID,
-        if_exists="append"
+        if_exists="append",
+        credentials=credentials,
     )
