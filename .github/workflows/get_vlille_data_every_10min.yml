@@ -22,7 +22,7 @@ jobs:
 
       - name: Write GCP service account key
         run: |
-          echo "${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}" > ./gcp-key.json
+          echo "${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}" | base64 --decode> ./gcp-key.json
           echo "✅ Fichier gcp-key.json créé à $(pwd)"
           ls -l ./gcp-key.json  # Vérification visuelle dans les logs
         shell: bash
@@ -32,7 +32,6 @@ jobs:
           pip install uv
           cd scrape_data
           uv sync
-
       - name: Run Python script with uv
         env:
           GOOGLE_APPLICATION_CREDENTIALS: ${{ github.workspace }}/gcp-key.json
