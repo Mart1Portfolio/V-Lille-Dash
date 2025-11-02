@@ -12,6 +12,8 @@ jobs:
     steps:
       - name: Checkout the repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 1  # éviter de cloner tout l'historique
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -20,15 +22,15 @@ jobs:
 
       - name: Set up GCP credentials
         run: |
-          echo "${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}" > $HOME/gcp-key.json
+          echo "${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}" > $GITHUB_WORKSPACE/gcp-key.json
         env:
           GOOGLE_APPLICATION_CREDENTIALS: ${{ github.workspace }}/gcp-key.json
 
       - name: Install Scraper Dependencies
         run: |
-          pip install uv  # Installer uv
-          cd scrape_data  # Se déplacer dans le dossier du scraper
-          uv sync         # Installer les dépendances
+          pip install uv
+          cd scrape_data
+          uv sync
 
       - name: Run Python script with uv
         env:
