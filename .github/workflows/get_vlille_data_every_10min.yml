@@ -19,7 +19,14 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: '3.13'
-
+      - name: Configure GCP credentials
+        run: |
+          # 1. Prend le Secret GitHub et le décode dans un fichier
+          echo "${{ secrets.DASH_VLILLE_BQ_PUSHER }}" > gcp_key.json
+          
+          # 2. Définit une variable d'environnement pour que pandas-gbq
+          # trouve et utilise automatiquement ce fichier.
+          echo "GOOGLE_APPLICATION_CREDENTIALS=gcp_key.json" >> $GITHUB_ENV
       - name: Install Scraper Dependencies
         run: |
           pip install uv  # Installer uv via pip
