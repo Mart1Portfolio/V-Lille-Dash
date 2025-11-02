@@ -26,7 +26,7 @@ jobs:
           
           # 2. Définit une variable d'environnement pour que pandas-gbq
           # trouve et utilise automatiquement ce fichier.
-          echo "GOOGLE_APPLICATION_CREDENTIALS=gcp_key.json" >> $GITHUB_ENV
+          echo "GOOGLE_APPLICATION_CREDENTIALS=$GITHUB_WORKSPACE/gcp_key.json" >> $GITHUB_ENV
       - name: Install Scraper Dependencies
         run: |
           pip install uv  # Installer uv via pip
