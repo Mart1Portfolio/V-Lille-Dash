@@ -1,8 +1,8 @@
 name: Get VLille info every 10min by executing a Python Script and saving CSV
 
 on:
-  schedule:
-    - cron: '*/10 * * * *'  # Every 10 min
+  # schedule:
+    # - cron: '*/10 * * * *'  # Every 10 min
   workflow_dispatch:
 
 jobs:
