@@ -30,13 +30,27 @@ jobs:
           credentials_json: '${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}'
           project_id: ${{ secrets.GCP_PROJECT_ID }}
 
-      - name: Deploy cloud run
+      - name: Configure Docker for Artifact Registry
+        run: gcloud auth configure-docker ${{ env.REGION }}-docker.pkg.dev
+      # Define a unique image tag (e.g., using the commit SHA)
+      - name: Set image tag
+        run: echo "IMAGE_TAG=${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPO_NAME }}/${{ env.IMAGE_NAME }}:${{ github.sha }}" >> $GITHUB_ENV
+
+      - name: Build Docker image
+        run: |
+          docker build -t $IMAGE_TAG ./prod/scrape_data
+          
+      - name: Push Docker image to Artifact Registry
+        run: docker push $IMAGE_TAG
+        
+      - name: Deploy to Cloud Run
         uses: google-github-actions/deploy-cloudrun@v2
         with:
-          service: ${{ env.SERVICE_NAME }}
+          image: ${{ env.IMAGE_TAG }} # <--- Use the --image flag
+          service: v-lille-scrapper
           region: ${{ env.REGION }}
-          source: ./prod/scrape_data
           env_vars: |
             GCP_PROJECT_ID=${{ secrets.GCP_PROJECT_ID }}
             BIGQUERY_DATASET_ID=${{ secrets.BIGQUERY_DATASET_ID }}
             BIGQUERY_TABLE_ID=${{ secrets.BIGQUERY_TABLE_ID }}
+          labels: "managed-by=github-actions,commit-sha=${{ github.sha }}"
