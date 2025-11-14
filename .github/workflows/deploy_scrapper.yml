@@ -1,0 +1,42 @@
+name: Deploy Scrapper (CI/CD)
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch: # Permet de lancer le workflow manuellement depuis l'UI GitHub
+
+env:
+  SERVICE_NAME: v-lille-scrapper
+  REGION: europe-west1
+
+permissions:
+  contents: 'read'
+  id-token: 'write'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1 # Evite de cloner tout l'historique Git
+
+      - name: Google Cloud Auth
+        uses: 'google-github-actions/auth@v2'
+        with:
+          credentials_json: '${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}'
+          project_id: ${{ secrets.GCP_PROJECT_ID }}
+
+      - name: Deploy cloud run
+        uses: google-github-actions/deploy-cloudrun@v2
+        with:
+          service: ${{ env.SERVICE_NAME }}
+          region: ${{ env.REGION }}
+          source: ./prod/scrape_data
+          env_vars: |
+            GCP_PROJECT_ID=${{ secrets.GCP_PROJECT_ID }}
+            BIGQUERY_DATASET_ID=${{ secrets.BIGQUERY_DATASET_ID }}
+            BIGQUERY_TABLE_ID=${{ secrets.BIGQUERY_TABLE_ID }}
