@@ -2,7 +2,7 @@ FROM python:3.13
 
 WORKDIR /app
 
-COPY uv.lock .
+COPY requirements_scrapper.txt .
 
 RUN pip install uv
 RUN uv pip install -r requirements_scrapper.txt
