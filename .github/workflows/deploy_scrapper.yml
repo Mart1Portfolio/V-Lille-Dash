@@ -40,8 +40,7 @@ jobs:
 
       - name: Build Docker image
         run: |
-          docker build -t $IMAGE_TAG ./prod/scrape_data
-          
+          docker build -t $IMAGE_TAG -f ./prod/scrape_data/scrapy_docker_img.dockerfile ./prod/scrape_data          
       - name: Push Docker image to Artifact Registry
         run: docker push $IMAGE_TAG
         
