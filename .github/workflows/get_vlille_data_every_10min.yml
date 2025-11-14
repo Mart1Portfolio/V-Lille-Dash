@@ -26,9 +26,14 @@ jobs:
           pip install uv
           cd scrape_data
           uv sync
+
+      - name: Write GCP credentials to file
+        run: |
+          echo "${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}" > /tmp/account.json
+
       - name: Run Python script with uv
         env:
-          GOOGLE_APPLICATION_CREDENTIALS: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}
+          GOOGLE_APPLICATION_CREDENTIALS: /tmp/account.json
           GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
           BIGQUERY_DATASET_ID: ${{ secrets.BIGQUERY_DATASET_ID }}
           BIGQUERY_TABLE_ID: ${{ secrets.BIGQUERY_TABLE_ID }}
