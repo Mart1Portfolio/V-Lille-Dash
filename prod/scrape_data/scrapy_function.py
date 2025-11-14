@@ -6,11 +6,6 @@ import os
 from datetime import datetime
 from google.oauth2 import service_account
 
-# Useless for cloud run deployed app
-# credentials = service_account.Credentials.from_service_account_file(
-#     os.environ["GOOGLE_APPLICATION_CREDENTIALS"]
-# )
-
 PROJECT_ID = os.environ.get("GCP_PROJECT_ID")
 DATASET_ID = os.environ.get("BIGQUERY_DATASET_ID")
 TABLE_ID = os.environ.get("BIGQUERY_TABLE_ID")
@@ -47,8 +42,9 @@ def scrape_and_upload():
     ]
     df.drop(columns=drop_columns, inplace=True)
     df.rename(columns={"@id": "ID_station"}, inplace=True)
+    df["ID_station"] = df["ID_station"].str.replace("vlille_temps_reel.", "", regex=False)
     df.columns = df.columns.str.replace(".", "_", regex=False)
-
+    df["Date_Paris"] = pd.to_datetime(df["properties_date_modification"]).dt.tz_localize("UTC").dt.tz_convert("Europe/Paris")
     df["Date_Scrapping"] = datetime.now().strftime("%d/%m/%Y")
     df["Heure_Min_Scrapping"] = datetime.now().strftime("%H:%M")
     to_gbq(

@@ -1,0 +1,11 @@
+requests
+pandas
+
+dash
+plotly
+dash-mantine-components
+dash-bootstrap-components
+dash-bootstrap-templates
+geopandas
+openai
+geopy

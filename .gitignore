@@ -6,3 +6,4 @@ Data_frame/
 .env
 .venv
 secrets
+.parquet
