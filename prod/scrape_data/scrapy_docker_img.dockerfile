@@ -5,7 +5,7 @@ WORKDIR /app
 COPY uv.lock .
 
 RUN pip install uv 
-RUN uv
+RUN uv sync
 
 COPY scrapy_function.py .
 COPY scrapy_app.py .
