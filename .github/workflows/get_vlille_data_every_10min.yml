@@ -20,12 +20,6 @@ jobs:
         with:
           python-version: '3.13'
 
-      - name: Write GCP service account key
-        run: |
-          echo "${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}" | base64 --decode> ./gcp-key.json
-          echo "✅ Fichier gcp-key.json créé à $(pwd)"
-          ls -l ./gcp-key.json  # Vérification visuelle dans les logs
-        shell: bash
 
       - name: Install Scraper Dependencies
         run: |
@@ -34,13 +28,11 @@ jobs:
           uv sync
       - name: Run Python script with uv
         env:
-          GOOGLE_APPLICATION_CREDENTIALS: ${{ github.workspace }}/gcp-key.json
+          GOOGLE_APPLICATION_CREDENTIALS: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}
           GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
           BIGQUERY_DATASET_ID: ${{ secrets.BIGQUERY_DATASET_ID }}
           BIGQUERY_TABLE_ID: ${{ secrets.BIGQUERY_TABLE_ID }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          echo "🔍 Vérification avant exécution :"
-          ls -l ${{ github.workspace }}/gcp-key.json || echo "❌ Clé non trouvée !"
           cd scrape_data
           uv run scrapper.py
