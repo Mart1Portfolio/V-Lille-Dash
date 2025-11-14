@@ -9,7 +9,9 @@ on:
 env:
   SERVICE_NAME: v-lille-scrapper
   REGION: europe-west1
-
+  PROJECT_ID: dash-vlille                
+  REPO_NAME: cloud-run-source-deploy    
+  IMAGE_NAME: v-lille-scrapper    
 permissions:
   contents: 'read'
   id-token: 'write'
