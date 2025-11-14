@@ -5,8 +5,7 @@ WORKDIR /app
 COPY requirements_scrapper.txt .
 
 RUN pip install uv
-RUN uv pip install -r requirements_scrapper.txt
-
+RUN uv pip install -r requirements_scrapper.txt --system
 COPY scrapy_function.py .
 COPY scrapy_app.py .
 
