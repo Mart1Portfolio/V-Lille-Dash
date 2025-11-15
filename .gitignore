@@ -7,3 +7,5 @@ Data_frame/
 .venv
 secrets
 .parquet
+lab/eda/data_vlille_2025.parquet
+lab/data_prep/data_vlille_2025.parquet
