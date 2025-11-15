@@ -44,7 +44,7 @@ def scrape_and_upload():
     df.rename(columns={"@id": "ID_station"}, inplace=True)
     df["ID_station"] = df["ID_station"].str.replace("vlille_temps_reel.", "", regex=False)
     df.columns = df.columns.str.replace(".", "_", regex=False)
-    df["Date_Paris"] = pd.to_datetime(df["properties_date_modification"]).dt.tz_localize("UTC").dt.tz_convert("Europe/Paris")
+    df["Date_Paris"] = pd.to_datetime(df["properties_date_modification"]).dt.tz_convert("Europe/Paris")
     df["Date_Scrapping"] = datetime.now().strftime("%d/%m/%Y")
     df["Heure_Min_Scrapping"] = datetime.now().strftime("%H:%M")
     to_gbq(
