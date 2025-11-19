@@ -1,0 +1,23 @@
+[project]
+name = "lab"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "dash>=3.3.0",
+    "dash-bootstrap-components>=2.0.4",
+    "dash-bootstrap-templates>=2.1.0",
+    "dash-mantine-components>=2.4.0",
+    "dotenv>=0.9.9",
+    "geopandas>=1.1.1",
+    "geopy>=2.4.1",
+    "google-cloud-bigquery>=3.38.0",
+    "ipykernel>=7.1.0",
+    "nbformat>=5.10.4",
+    "openai>=2.8.0",
+    "pandas>=2.3.3",
+    "pandas-gbq>=0.30.0",
+    "plotly>=6.4.0",
+    "requests>=2.32.5",
+]
