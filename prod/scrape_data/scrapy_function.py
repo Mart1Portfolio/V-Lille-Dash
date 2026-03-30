@@ -31,22 +31,19 @@ def scrape_and_upload():
         None
     """
     df = call_data()
-    drop_columns = [
-        "type",
-        "@typeName",
-        "geometry.type",
-        "geometry.@name",
-        "geometry.@srs",
-        "properties.code_insee",
-        "properties.type",
-    ]
-    df.drop(columns=drop_columns, inplace=True)
     df.rename(columns={"@id": "ID_station"}, inplace=True)
     df["ID_station"] = df["ID_station"].str.replace("vlille_temps_reel.", "", regex=False)
     df.columns = df.columns.str.replace(".", "_", regex=False)
     df["Date_Paris"] = pd.to_datetime(df["properties_date_modification"]).dt.tz_convert("Europe/Paris")
     df["Date_Scrapping"] = datetime.now().strftime("%d/%m/%Y")
     df["Heure_Min_Scrapping"] = datetime.now().strftime("%H:%M")
+    keep_columns = ['ID_station', 'geometry_coordinates', 'properties_identifiant_station',
+    'properties_nom', 'properties_adresse', 'properties_commune',
+    'properties_etat', 'properties_nb_places_dispo',
+    'properties_nb_velos_dispo', 'properties_etat_connexion',
+    'properties_x', 'properties_y', 'properties_date_modification',
+    'Date_Paris', 'Date_Scrapping', 'Heure_Min_Scrapping']
+    df = df[keep_columns]
     to_gbq(
         df,
         TABLE_FULL_ID,
